@@ -645,7 +645,7 @@ void sectionOpts() {
    */
 # if VIRTUAL_BOOT_PARTITION
 /*  VIRTUAL_BOOT_PARTITION code is about 100 bytes */
-#   define VBSIZE 110
+#   define VBSIZE 119
 # else
 #   define VBSIZE 0
 # endif
@@ -1468,6 +1468,28 @@ static inline void writebuffer(int8_t memtype, addr16_t mybuff,
      * space on chips that don't support any other memory types.
      */
     {
+      #if VIRTUAL_BOOT_PARTITION
+      // In virtual partition mode, there's nothing to prevent the user from trying to flash a file
+      // that overwrites the bootloader. This is bad, because it will remove the bootloader and probably
+      // brick the chip (from the user's point of view; ISP programming will still work).
+      // To avoid this, this check detects if the user is trying to write to the bootloader areas
+      // of flash. If it is, the bootloader sends a failure message and enters an infinite loop. 
+      //
+      // TODO: Responding STK_INSYNC, STK_FAILED causes avrdude to print an error message, but it keeps
+      //       trying to program. The bootloader is safe, but it is a bad user experience. Ideally,
+      //       this would send a response that causes avrdude to stop immediately with an error message.
+      //       From looking at the avrdude implementation of stk500v1, this might not be possible. It fails
+      //       hard for low-level serial issues, but protocol-level errors seem to cause soft failures that
+      //       get retried. 
+      // TODO: Figure out how to reference __BOOT_START__ rather than duplicating the BOOT_START address
+      uint16_t const MAX_WRITE_ADDRESS = ((uint32_t)FLASHEND+1) - ROUNDTOPAGE(BOOTSIZE);
+      if (address.word >= MAX_WRITE_ADDRESS || address.word + len >= MAX_WRITE_ADDRESS) {
+        putch(STK_INSYNC);
+        putch(STK_FAILED);
+        while(1);
+      }
+      #endif
+
       // Copy buffer into programming buffer
       uint16_t addrPtr = address.word;
 
