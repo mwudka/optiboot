@@ -1,0 +1,21 @@
+name: Build Bootloader
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - run: apt install -y binutils-avr avr-libc gcc-avr
+    - run: cd optiboot/bootloaders/optiboot && make AVR_FREQ=8000000 SUPPORT_EEPROM=0 TIMEOUT=2 SOFT_UART=1 SOFTTX=B1 SOFTRX=B2 LED_START_FLASHES=0 LED_DATA_FLASH=0 LED_START_ON=0 attiny44
+    - uses: actions/upload-artifact@v3.0.0
+      with:
+        name: icecreamuino_bootloader.hex
+        path: optiboot/bootloaders/optiboot/*.hex
+        if-no-fles-found: error
