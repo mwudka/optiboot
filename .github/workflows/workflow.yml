@@ -14,7 +14,7 @@ jobs:
     - uses: actions/checkout@v3
     - run: sudo apt install -y binutils-avr avr-libc gcc-avr
     - run: cd optiboot/bootloaders/optiboot && make AVR_FREQ=8000000 SUPPORT_EEPROM=0 TIMEOUT=2 SOFT_UART=1 SOFTTX=B1 SOFTRX=B2 LED_START_FLASHES=0 LED_DATA_FLASH=0 LED_START_ON=0 attiny44 && mv optiboot_attiny44.hex icecreamuino_optiboot_attiny44.hex
-    - run: cd optiboot/bootloaders/optiboot && make AVR_FREQ=8000000 SUPPORT_EEPROM=0 TIMEOUT=2 SOFT_UART=1 SOFTTX=B1 SOFTRX=B2 LED_START_FLASHES=0 LED_DATA_FLASH=0 LED_START_ON=0 attiny84 && mv optiboot_attiny44.hex icecreamuino_optiboot_attiny84.hex
+    - run: cd optiboot/bootloaders/optiboot && make AVR_FREQ=8000000 SUPPORT_EEPROM=0 TIMEOUT=2 SOFT_UART=1 SOFTTX=B1 SOFTRX=B2 LED_START_FLASHES=0 LED_DATA_FLASH=0 LED_START_ON=0 attiny84 && mv optiboot_attiny84.hex icecreamuino_optiboot_attiny84.hex
     - uses: actions/upload-artifact@v3.0.0
       with:
         name: icecreamuino_bootloader
